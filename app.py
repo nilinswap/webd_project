@@ -30,6 +30,12 @@ def prinxt(s):
 @app.route('/dashboard/')
 def dash(sess=False):
 	try:
+		return render_template("dashboard.html",tempdoc=navtabcontent_locked())
+	except Exception as e:							
+		return str(e)
+@app.route('/dashboard/<sess>')
+def dashs(sess=False):
+	try:
 		if sess:	
 			return render_template("dashboard.html",tempdoc=navtabcontent_unlocked())#content management; this navtabcontent function lies in another python file, it returns content by some data structure
 		else:
@@ -49,12 +55,13 @@ def login_page():
 			#flash(username)
 			#flash(password)
 			c,conn=connection()
-			notempty=c.execute("SELECT * FROM users")
+			notempty=c.execute("SELECT * FROM users where username=%s and password =%s",(username,password))
 			
 			if notempty :	
-				
-				flash("welcome")				
-				return redirect(url_for('dash'))#it redirects to the url of dash
+				flash("welcome")	
+				session['logged_in']=True
+				session['username']=username			
+				return redirect(url_for('dashs',sess=True))#it redirects to the url of dash
 			else:
 				error="invalid credentials"
 			c.close()
